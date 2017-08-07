@@ -191,8 +191,8 @@ function update() {
     gameStarted = false;
     musica = true;
   }
-seconds = Math.floor(game.time.time / 1000) % 60;
-timeText.setText('Tiempo Jugando: '+seconds);
+var seconds = this.game.time.totalElapsedSeconds();
+timeText.setText('Tiempo Jugando: '+parseInt(seconds));
 }
 function render() {
     game.debug.soundInfo(music, 20, 32);
