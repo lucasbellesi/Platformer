@@ -94,7 +94,7 @@ function create() {
   var rightWall = walls.create(game.world.width - 32, 0, "ground");
   rightWall.scale.setTo(32 / 400, 600 / 32);
   rightWall.body.immovable = true;
-  timeText = game.add.text(32, 0, 'Tiempo Jugando: ', {      font: '26px Arial',      fill: 'white',      align: 'center'    });
+  timeText = game.add.text(32, 0, 'Segundos Jugados: ', {      font: '26px Arial',      fill: 'white',      align: 'center'    });
   deathText = game.add.text(32, 32, 'Muertes: '+muertes, {      font: '26px Arial',      fill: 'white',      align: 'center'    });
   // create our virtual game controller buttons
     buttonjump = game.add.button(700, 464, 'buttonjump', null, this, 0, 1, 0, 1);  //game, x, y, key, callback, callbackContext, overFrame, outFrame, downFrame, upFrame
