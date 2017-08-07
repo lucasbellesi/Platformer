@@ -11,18 +11,31 @@ var cursors;
 var platforms;
 var platformsArray;
 var gameStarted = false;
-
+var music;
+var muertes = 0;
+var musica = false;
+var seconds=0;
 function preload() {
-  game.load.image('sky', 'assets/sky.png');
+  game.load.audio('pixel', ['assets/audio/Pixelland.mp3', 'assets/audio/Pixelland.ogg']);
+  game.load.audio('jump', 'assets/audio/Jump.wav');
+  game.load.audio('pickcoin', 'assets/audio/Pickup_Coin.wav');
+  game.load.audio('explosion', 'assets/audio/Explosion.wav');
+  game.load.image('sky', 'assets/background.png');
   game.load.image('lava', 'assets/lava.png');
   game.load.image('ground', 'assets/platform.png');
   game.load.image('star', 'assets/star.png');
   game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
 }
 
-var platforms;
-
 function create() {
+  jumpSound = game.sound.add("jump");
+  explosionSound = game.sound.add("explosion");
+  music = game.add.audio('pixel');
+  music.play();
+  if(musica==true){
+    music.stop();
+    musica=false;
+  }
   function createPlatform(x, y) {
     platformsArray[i] = platforms.create(x, y, "ground");
     platformsArray[i].body.immovable = true;
@@ -64,7 +77,8 @@ function create() {
   player.animations.add('left', [0, 1, 2, 3], 10, true);
   player.animations.add('right', [5, 6, 7, 8], 10, true);
   cursors = game.input.keyboard.createCursorKeys();
-  game.add.sprite(0, game.world.height - 16, 'lava');
+  lava = game.add.sprite(0, game.world.height - 16, 'lava');
+  game.physics.enable(lava);
   //walls
   walls = game.add.group();
   walls.enableBody = true;
@@ -74,6 +88,8 @@ function create() {
   var rightWall = walls.create(game.world.width - 32, 0, "ground");
   rightWall.scale.setTo(32 / 400, 600 / 32);
   rightWall.body.immovable = true;
+  timeText = game.add.text(32, 0, 'Tiempo Jugando: ', {      font: '26px Arial',      fill: 'white',      align: 'center'    });
+  deathText = game.add.text(32, 32, 'Muertes: '+muertes, {      font: '26px Arial',      fill: 'white',      align: 'center'    });
 }
 
 
@@ -85,7 +101,7 @@ function update() {
     for (var platform of platformsArray) {
       platform.position.y++;
       if (player.position.y < 0) {
-        platform.position.y -= player.position.y
+        platform.position.y -= player.position.y;
       }
       if (game.world.height < platform.position.y) {
         platform.position.x = 32 + Math.random() * (game.world.width - 64 - 400 * MAX_WIDTH);
@@ -97,6 +113,7 @@ function update() {
   if (player.position.y < 0) {
     player.position.y = 0;
   }
+
   if (game.physics.arcade.collide(player, walls)) player.body.velocity.x = -speed;
   if (!player.body.touching.up) {
     var hitPlatform = game.physics.arcade.collide(player, platforms);
@@ -125,5 +142,19 @@ function update() {
   if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
     player.body.velocity.y = -350;
     gameStarted = true;
+    jumpSound.play();
   }
+  if (game.physics.arcade.collide(player, lava)){
+    explosionSound.play();
+    player.kill();
+    muertes++;
+    game.state.restart();
+    gameStarted = false;
+    musica = true;
+  }
+seconds = Math.floor(game.time.time / 1000) % 60;
+timeText.setText('Tiempo Jugando: '+seconds);
+}
+function render() {
+    game.debug.soundInfo(music, 20, 32);
 }
