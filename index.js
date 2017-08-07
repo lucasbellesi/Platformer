@@ -12,10 +12,15 @@ var platforms;
 var platformsArray;
 var gameStarted = false;
 var music;
+var left=false;
+var right=false;
+var jump=false;
 var muertes = 0;
 var musica = false;
 var seconds=0;
 function preload() {
+  game.load.spritesheet('buttonjump', 'assets/button-round-b.png',64,64);
+  game.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png',64,32);
   game.load.audio('pixel', ['assets/audio/Pixelland.mp3', 'assets/audio/Pixelland.ogg']);
   game.load.audio('jump', 'assets/audio/Jump.wav');
   game.load.audio('pickcoin', 'assets/audio/Pickup_Coin.wav');
@@ -28,6 +33,7 @@ function preload() {
 }
 
 function create() {
+  if (!game.device.desktop){ game.input.onDown.add(gofull, this); } //go fullscreen on mobile devices
   jumpSound = game.sound.add("jump");
   explosionSound = game.sound.add("explosion");
   music = game.add.audio('pixel');
@@ -90,6 +96,27 @@ function create() {
   rightWall.body.immovable = true;
   timeText = game.add.text(32, 0, 'Tiempo Jugando: ', {      font: '26px Arial',      fill: 'white',      align: 'center'    });
   deathText = game.add.text(32, 32, 'Muertes: '+muertes, {      font: '26px Arial',      fill: 'white',      align: 'center'    });
+  // create our virtual game controller buttons
+    buttonjump = game.add.button(700, 464, 'buttonjump', null, this, 0, 1, 0, 1);  //game, x, y, key, callback, callbackContext, overFrame, outFrame, downFrame, upFrame
+    buttonjump.fixedToCamera = true;  //our buttons should stay on the same place
+    buttonjump.events.onInputOver.add(function(){jump=true;});
+    buttonjump.events.onInputOut.add(function(){jump=false;});
+    buttonjump.events.onInputDown.add(function(){jump=true;});
+    buttonjump.events.onInputUp.add(function(){jump=false;});
+
+    buttonleft = game.add.button(40, 472, 'buttonhorizontal', null, this, 0, 1, 0, 1);
+    buttonleft.fixedToCamera = true;
+    buttonleft.events.onInputOver.add(function(){left=true;});
+    buttonleft.events.onInputOut.add(function(){left=false;});
+    buttonleft.events.onInputDown.add(function(){left=true;});
+    buttonleft.events.onInputUp.add(function(){left=false;});
+
+    buttonright = game.add.button(120, 472, 'buttonhorizontal', null, this, 0, 1, 0, 1);
+    buttonright.fixedToCamera = true;
+    buttonright.events.onInputOver.add(function(){right=true;});
+    buttonright.events.onInputOut.add(function(){right=false;});
+    buttonright.events.onInputDown.add(function(){right=true;});
+    buttonright.events.onInputUp.add(function(){right=false;});
 }
 
 
@@ -120,14 +147,26 @@ function update() {
   }
   player.body.velocity.x *= 0.975;
 
-  if (cursors.left.isDown) {
+  if (cursors.left.isDown || left) {
     //  Move to the left
+    player.body.velocity.x = Math.max(-300, player.body.velocity.x - 10);
+
+    player.animations.play('left');
+  }
+  if (left) {
+
     player.body.velocity.x = Math.max(-300, player.body.velocity.x - 10);
 
     player.animations.play('left');
   }
   if (cursors.right.isDown) {
     //  Move to the right
+    player.body.velocity.x = Math.min(300, player.body.velocity.x + 10);
+
+    player.animations.play('right');
+  }
+  if (right) {
+
     player.body.velocity.x = Math.min(300, player.body.velocity.x + 10);
 
     player.animations.play('right');
@@ -139,7 +178,7 @@ function update() {
   }
 
   //  Allow the player to jump if they are touching the ground.
-  if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
+  if ((cursors.up.isDown||jump) && player.body.touching.down && hitPlatform) {
     player.body.velocity.y = -350;
     gameStarted = true;
     jumpSound.play();
@@ -158,3 +197,4 @@ timeText.setText('Tiempo Jugando: '+seconds);
 function render() {
     game.debug.soundInfo(music, 20, 32);
 }
+function gofull() { game.scale.startFullScreen(false);}
