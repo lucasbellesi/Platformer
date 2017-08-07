@@ -192,7 +192,7 @@ function update() {
     musica = true;
   }
 var seconds = this.game.time.totalElapsedSeconds();
-timeText.setText('Tiempo Jugando: '+parseInt(seconds));
+timeText.setText('Segundos Jugados: '+parseInt(seconds));
 }
 function render() {
     game.debug.soundInfo(music, 20, 32);
